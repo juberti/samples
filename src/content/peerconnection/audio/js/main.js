@@ -5,6 +5,7 @@
  *  that can be found in the LICENSE file in the root of the source
  *  tree.
  */
+/* global TimelineDataSeries, TimelineGraphView */
 
 /* globals maybePreferCodec, preferBitRate, setCodecParam*/
 'use strict';
@@ -24,6 +25,11 @@ var pc1;
 var pc2;
 var localstream;
 
+var graph;
+var bitrateSeries;
+var lastBytes = 0;
+var lastTime;
+
 function gotStream(stream) {
   trace('Received local stream');
   // Call the polyfill wrapper to attach the media stream to this element.
@@ -36,6 +42,10 @@ function gotStream(stream) {
   trace('Adding Local Stream to peer connection');
 
   pc1.createOffer(gotDescription1, onCreateSessionDescriptionError);
+
+  bitrateSeries = new TimelineDataSeries();
+  graph = new TimelineGraphView('graph', 'graphCanvas');
+  graph.updateEndDate();
 }
 
 function onCreateSessionDescriptionError(error) {
@@ -151,4 +161,33 @@ function applyParamsToSdp(sdp) {
     newSdp = setCodecParam(newSdp, 'opus/48000', 'usedtx', '1');
   }
   return newSdp;
+}
+
+// query getStats every second
+if (webrtcDetectedBrowser === 'chrome') {
+  window.setInterval(function() {
+    if (!window.pc1) {
+      return;
+    }
+    window.pc1.getStats(function(res) {
+      res.result().forEach(function(report) {
+        var bytes;
+        var now = report.timestamp;
+        if (report.type === 'ssrc' && report.stat('bytesSent')) {
+          bytes = report.stat('bytesSent');
+          if (lastTime) {
+            // calculate bitrate
+            var bitrate = 8 * (bytes - lastBytes) / (now - lastTime);
+
+            // append to chart
+            bitrateSeries.addPoint(now, bitrate);
+            graph.setDataSeries([bitrateSeries]);
+            graph.updateEndDate();
+          }
+          lastBytes = bytes;
+          lastTime = now;
+        }
+      });
+    });
+  }, 1000);
 }
