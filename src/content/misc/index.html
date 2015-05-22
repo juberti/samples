@@ -1,0 +1,42 @@
+<html>
+<script src="main.js">
+var output_a = document.getElementById("output_a");
+var output_b = document.getElementById("output_b");
+var adelay = document.getElementById("adelay");
+var srtt = document.getElementById("srtt");
+var trtt = document.getElementById("trtt");
+var irtt = document.getElementById("irtt");
+var ici = document.getElementById("ici");
+</script>
+<body>
+<section>
+  <div>
+	<label for="adelay">Answer Delay:</label>
+    <input id="adelay" value="500">
+  </div>
+  <div>
+	<label for="srtt">Signaling RTT:</label>
+    <input id="srtt" value="250">
+  </div>
+  <div>
+	<label for="trtt">TURN RTT:</label>
+    <input id="trtt" value="50">
+  </div>
+  <div>
+	<label for="irtt">ICE check RTT:</label>
+    <input id="irtt" value="100">
+  </div>
+  <div>
+	<label for="ici">ICE check interval:</label>
+    <input id="ici" value="50">
+  </div>
+  <button id="run" onclick="start()">Run</button>
+</section>
+<section>
+<textarea id="output_a" rows="50" cols="60">
+</textarea>
+<textarea id="output_b" rows="50" cols="60">
+</textarea>
+</section>
+</body>
+</html>
